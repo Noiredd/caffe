@@ -136,6 +136,10 @@ void CPPLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
   }
 }
 
+#ifdef CPU_ONLY
+STUB_GPU(CPPLayer);
+#endif
+
 INSTANTIATE_CLASS(CPPLayer);
 REGISTER_LAYER_CLASS(CPP);
 

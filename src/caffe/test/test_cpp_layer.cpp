@@ -79,8 +79,10 @@ void reference_conv(Blob<Dtype>* image_, Blob<Dtype>* kernels_,
   }
 }
 
-template <typename Dtype>
-class CPPLayerTest : public CPUDeviceTest<Dtype> {
+template <typename TypeParam>
+class CPPLayerTest : public MultiDeviceTest<TypeParam> {
+  typedef typename TypeParam::Dtype Dtype;
+
  protected:
   CPPLayerTest()
       : blob_bottom_img_(new Blob<Dtype>(2, 3, 12, 16)),
@@ -123,21 +125,22 @@ class CPPLayerTest : public CPUDeviceTest<Dtype> {
   vector<Blob<Dtype>*> blob_top_vec_;
 };
 
-TYPED_TEST_CASE(CPPLayerTest, TestDtypes);
+TYPED_TEST_CASE(CPPLayerTest, TestDtypesAndDevices);
 
 TYPED_TEST(CPPLayerTest, TestForward3) {
+  typedef typename TypeParam::Dtype Dtype;
   /* Test forward pass against the existing convolution implementation. */
   int kernel = 3;
   // Create the filter blob for the given kernel size
   this->PrepareKernelBlob(kernel);
   // Propagate using CPP Layer
   LayerParameter layer_param;
-  CPPLayer<TypeParam> layer(layer_param);
+  CPPLayer<Dtype> layer(layer_param);
   layer.SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
   layer.Forward(this->blob_bottom_vec_, this->blob_top_vec_);
   // Calculate the reference implementation
-  Blob<TypeParam> reference_output;
-  reference_conv<TypeParam>(this->blob_bottom_img_, this->blob_bottom_ker_,
+  Blob<Dtype> reference_output;
+  reference_conv<Dtype>(this->blob_bottom_img_, this->blob_bottom_ker_,
       &reference_output);
   // Compare
   CHECK_EQ(this->blob_top_->count(), reference_output.count()) <<
@@ -149,18 +152,19 @@ TYPED_TEST(CPPLayerTest, TestForward3) {
 }
 
 TYPED_TEST(CPPLayerTest, TestForward5) {
+  typedef typename TypeParam::Dtype Dtype;
   /* Test forward pass against the existing convolution implementation. */
   int kernel = 5;
   // Create the filter blob for the given kernel size
   this->PrepareKernelBlob(kernel);
   // Propagate using CPP Layer
   LayerParameter layer_param;
-  CPPLayer<TypeParam> layer(layer_param);
+  CPPLayer<Dtype> layer(layer_param);
   layer.SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
   layer.Forward(this->blob_bottom_vec_, this->blob_top_vec_);
   // Calculate the reference implementation
-  Blob<TypeParam> reference_output;
-  reference_conv<TypeParam>(this->blob_bottom_img_, this->blob_bottom_ker_,
+  Blob<Dtype> reference_output;
+  reference_conv<Dtype>(this->blob_bottom_img_, this->blob_bottom_ker_,
       &reference_output);
   // Compare
   CHECK_EQ(this->blob_top_->count(), reference_output.count()) <<
@@ -172,18 +176,19 @@ TYPED_TEST(CPPLayerTest, TestForward5) {
 }
 
 TYPED_TEST(CPPLayerTest, TestForward7) {
+  typedef typename TypeParam::Dtype Dtype;
   /* Test forward pass against the existing convolution implementation. */
   int kernel = 7;
   // Create the filter blob for the given kernel size
   this->PrepareKernelBlob(kernel);
   // Propagate using CPP Layer
   LayerParameter layer_param;
-  CPPLayer<TypeParam> layer(layer_param);
+  CPPLayer<Dtype> layer(layer_param);
   layer.SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
   layer.Forward(this->blob_bottom_vec_, this->blob_top_vec_);
   // Calculate the reference implementation
-  Blob<TypeParam> reference_output;
-  reference_conv<TypeParam>(this->blob_bottom_img_, this->blob_bottom_ker_,
+  Blob<Dtype> reference_output;
+  reference_conv<Dtype>(this->blob_bottom_img_, this->blob_bottom_ker_,
       &reference_output);
   // Compare
   CHECK_EQ(this->blob_top_->count(), reference_output.count()) <<
@@ -195,13 +200,14 @@ TYPED_TEST(CPPLayerTest, TestForward7) {
 }
 
 TYPED_TEST(CPPLayerTest, TestGradient3) {
+  typedef typename TypeParam::Dtype Dtype;
   int kernel = 3;
   // Create the filter blob for the given kernel size
   this->PrepareKernelBlob(kernel);
   // Create the layer and GradientChecker
   LayerParameter layer_param;
-  CPPLayer<TypeParam> layer(layer_param);
-  GradientChecker<TypeParam> checker(1e-2, 1e-3);
+  CPPLayer<Dtype> layer(layer_param);
+  GradientChecker<Dtype> checker(1e-2, 1e-3);
   layer.SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
   // Verify gradient for each input pixel
   for (int i = 0; i < this->blob_top_vec_[0]->count(); ++i) {
