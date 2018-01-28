@@ -10,6 +10,12 @@
 
 #include "caffe/util/math_functions.hpp"
 
+// Cutoff limit for the optimized backward pass GPU kernel.
+// Needs to be defined, as this is also the size of GPU cache for the gradient
+// calculation (needs to be known at compile-time).
+// No effect on CPU code.
+#define SEPCPP_FAST_KERNEL_LIMIT 101
+
 namespace caffe {
 
 /**
